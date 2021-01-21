@@ -1,0 +1,9 @@
+[package]
+name = "informa"
+version = "0.1.0"
+authors = ["Florian Pircher <florian@addpixel.net>"]
+edition = "2018"
+description = "Informa is a font compiler for digital typography."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
