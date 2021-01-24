@@ -1,9 +1,18 @@
 [package]
 name = "informa"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Florian Pircher <florian@addpixel.net>"]
 edition = "2018"
 description = "Informa is a font compiler for digital typography."
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+bytes = "1.0.0"
+itertools = "0.10.0"
+lazy_static = "1.4.0"
+log = "0.4.11"
+spans = "1.0.0"
+
+[dev-dependencies]
+permutohedron = "0.2.4"
+rand = "0.8.2"

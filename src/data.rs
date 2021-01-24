@@ -15,6 +15,17 @@ pub struct Source {
     pub character_map: CharacterMap,
 }
 
+impl Default for Source {
+    fn default() -> Self {
+        Source {
+            family_name: "Default".to_string(),
+            style_name: "Normal".to_string(),
+            font_name: "Default Normal".to_string(),
+            character_map: CharacterMap::default(),
+        }
+    }
+}
+
 /// Maps Unicode scalers to glyph ids.
 ///
 /// A `BTreeMap` is used since a character map is frequently accessed in ascending order of character codes.
