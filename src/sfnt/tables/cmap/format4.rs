@@ -333,7 +333,7 @@
 //
 // The format 4 segmentation algorithm as provided by this module is not optimal.
 // To test future improvements, have a look at the tests (`test_encoding_segments_brute_force_notorious` and `test_encoding_segments_brute_force_random` in particular).
-// To quickly check the size of a segmentation, use the tool provided at <https://addpixel.net/informa/cmap-format4-segmentation-test>.
+// To quickly check the size of a segmentation, open the HTML document forma4-segmentation-inspector.html (provided alongside the format4.rs file) in a JavaScript enabled web-browser.
 
 use crate::ctx::Context;
 use crate::data::CharacterMap;

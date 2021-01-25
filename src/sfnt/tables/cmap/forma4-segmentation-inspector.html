@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>cmap Format 4 Segmentation Inspector</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+    
+    :root {
+      font-size: 100%;
+      line-height: 1.2;
+      font-family: ui-sans-serif, sans-serif;
+    }
+    
+    body {
+      margin: 1rem;
+    }
+    
+    .info {
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      padding-right: calc(2px + 0.75rem);
+      padding-left: calc(2px + 0.75rem);
+    }
+    
+    .info h1 {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .info p {
+      max-width: 34rem;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .info a {
+      color: inherit;
+    }
+    
+    .info code {
+      font-family: ui-monospace, monospace;
+    }
+    
+    form {
+      font-family: ui-monospace, monospace;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .label {
+      display: block;
+    }
+    
+    .text-field {
+      appearance: none;
+      display: block;
+      font-family: inherit;
+      font-size: 1rem;
+      width: 100%;
+      padding: 0.5em 0.75em;
+      border: 2px solid #aaa;
+      border-radius: 0.5em;
+    }
+    
+    .text-field:focus {
+      outline: none;
+      border-color: #000;
+    }
+    
+    .output {
+      display: block;
+      padding: 0.5rem calc(2px + 0.75rem);
+    }
+    
+    .type-shift {
+      color: #254CB6;
+    }
+    
+    .type-mix {
+      color: #1e7d12;
+    }
+  </style>
+</head>
+<body>
+  <header class="info">
+    <h1>cmap Format 4 Segmentation Inspector</h1>
+    
+    <p>Enter a <code>cmap</code> format&nbsp;4 segmentation in the text-field below. The inspector marks continuous segments as <em>shift</em>-segments (<code class="type-shift">O</code>) and non-continuous segments as <em>mix</em>-segments (<code class="type-mix">X</code>). The size of each segment as well as the size of the overall segmentation is displayed in square brackets.</p>
+    <p>This inspector expects a continuous input of character codes, so only the glyph&nbsp;ids need to be specified. Numbers represent glyph&nbsp;ids. Commas join the glyph&nbsp;ids of a segment. The vertical bar (<code>|</code>) separates segments. Press Return when editing a text-field to duplicate that text-field.</p>
+  </header>
+  
+  <form class="form">
+    <input class="text-field" type="text" autocomplate="off" value="1,2,3 | 5 | 7,11,16">
+    <output class="output"></output>
+  </form>
+  
+  <footer class="info">
+    <p>This inspectors was made for the <a href="https://docs.rs/informa/0.2.0/informa/sfnt/tables/cmap/format4/index.html" title="Module informa::sfnt::tables::cmap::format4"><em>Informa</em> font compiler</a>.</p>
+  </footer>
+  
+  <script>
+    (() => {
+      const typeName = (type) => {
+        switch (type) {
+        case 'O': return 'shift';
+        case 'X': return 'mix';
+        case '_': return 'empty';
+        }
+      };
+      
+      const formatSegments = (xs, types) => xs
+          .map((x, i) => `<span class="span type-${typeName(types[i])}">` + x.map(x => `${x}`).join(',<wbr>') + '</span>')
+          .join(' | ');
+      
+      const inspectSegment = (segment) => {
+        if (segment.length === 0) {
+          return { type: '_', size: 0 };
+        }
+        
+        let isSorted = true;
+        let previousElement = segment[0] - 1;
+        
+        for (const element of segment) {
+          if (previousElement + 1 != element) {
+            isSorted = false;
+            break;
+          }
+          previousElement = element;
+        }
+        
+        if (isSorted) {
+          return { type: 'O', size: 8 };
+        } else {
+          return { type: 'X', size: 8 + segment.length * 2 };
+        }
+      };
+      
+      const update = (field, output) => {
+        const segments = field
+          .value
+          .replace(/\s+/g, '')
+          .split('|')
+          .map(x => x.split(',').map(x => parseInt(x)).filter(x => !Number.isNaN(x)));
+        const infos = segments.map(inspectSegment);
+        const sizes = infos.map(x => x.size);
+        const types = infos.map(x => x.type);
+        
+        output.innerHTML = `
+          <div class="format">${formatSegments(segments, types)}</div>
+          <div class="infos">[${sizes.reduce((a, x) => a + x, 0)} = ${sizes.join(' + ')}] (${types.map(x => `<span class="type-${typeName(x)}">${x}</span>`).join('')})</div>
+        `;
+      };
+      
+      for (const field of document.getElementsByTagName('input')) {
+        const output = field.nextElementSibling;
+        update(field, output);
+      }
+      
+      document.addEventListener('input', (event) => {
+        const field = event.target;
+        const output = field.nextElementSibling;
+        update(field, output);
+      });
+      
+      document.addEventListener('keydown', (event) => {
+        if (event.which === 13) {
+          event.preventDefault();
+          
+          const field = event.target;
+          const form = field.parentElement;
+          const formClone = form.cloneNode(true);
+          
+          form.parentElement.insertBefore(formClone, form.nextElementSibling);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
